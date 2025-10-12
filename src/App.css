@@ -1,0 +1,362 @@
+/* Global Typewriter Aesthetic */
+:root {
+  --font-main: 'Courier New', Courier, monospace;
+  
+  /* Light Mode */
+  --lm-bg: linear-gradient(to bottom, #f4f1ea 0%, #ebe7db 100%);
+  --lm-text: #2a2a2a;
+  --lm-border: #2a2a2a;
+  --lm-shadow: 4px 4px 0px #2a2a2a;
+  --lm-card-bg: #fdfbf5;
+  --lm-input-bg: #ebe7db;
+
+  /* Dark Mode */
+  --dm-bg: linear-gradient(to bottom, #1a1a1a 0%, #0d0d0d 100%);
+  --dm-text: #e0e0e0;
+  --dm-border: #e0e0e0;
+  --dm-shadow: 4px 4px 0px #e0e0e0;
+  --dm-card-bg: #222;
+  --dm-input-bg: #333;
+}
+
+/* Reset everything and ensure full viewport */
+* { 
+  margin: 0; 
+  padding: 0; 
+  box-sizing: border-box; 
+}
+
+html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  font-family: var(--font-main);
+}
+
+.app-container {
+  width: 100vw; /* Use viewport width */
+  min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
+  padding: 1rem;
+  overflow-x: hidden;
+  position: relative; /* Ensure proper positioning context */
+}
+
+@media (min-width: 768px) {
+  .app-container {
+    padding: 2rem;
+  }
+}
+
+.app-container.light-mode {
+  background: var(--lm-bg);
+  background-attachment: fixed; /* Keep gradient fixed */
+  color: var(--lm-text);
+}
+
+.app-container.dark-mode {
+  background: var(--dm-bg);
+  background-attachment: fixed; /* Keep gradient fixed */
+  color: var(--dm-text);
+}
+
+/* Header */
+.header {
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid;
+  padding-bottom: 1rem;
+  width: 100%; /* Ensure full width */
+}
+
+.light-mode .header { 
+  border-color: var(--lm-border); 
+}
+
+.dark-mode .header { 
+  border-color: var(--dm-border); 
+}
+
+.title { 
+  font-size: clamp(1.5rem, 4vw, 2rem); /* Responsive font size */
+  font-weight: bold; 
+}
+
+#theme-btn {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0;
+  color: inherit;
+  transition: transform 0.2s;
+}
+
+#theme-btn:hover {
+  transform: scale(1.1);
+}
+
+/* Tool Header */
+.tool-header {
+  margin-bottom: 2rem;
+  text-align: left;
+  width: 100%;
+}
+
+.tool-title-main { 
+  font-size: clamp(1.8rem, 5vw, 2.5rem); /* Responsive font size */
+  font-weight: bold; 
+}
+
+.tool-desc { 
+  font-size: clamp(1rem, 2vw, 1.2rem); /* Responsive font size */
+  margin-top: 0.5rem; 
+}
+
+/* Main Content Grid */
+.main-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  width: 100%;
+  max-width: 1400px; /* Optional: limit max width for readability on very wide screens */
+  margin: 0 auto; /* Center if max-width is applied */
+}
+
+/* Tablet layout */
+@media (min-width: 768px) {
+  .main-content {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Desktop layout */
+@media (min-width: 992px) {
+  .main-content {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Tool Cards */
+.tool-card {
+  border: 2px solid;
+  padding: 1.5rem;
+  width: 100%;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.tool-card:hover {
+  transform: translateY(-2px);
+}
+
+.light-mode .tool-card {
+  background: var(--lm-card-bg);
+  border-color: var(--lm-border);
+  box-shadow: var(--lm-shadow);
+}
+
+.dark-mode .tool-card {
+  background: var(--dm-card-bg);
+  border-color: var(--dm-border);
+  box-shadow: var(--dm-shadow);
+}
+
+.card-header {
+  font-size: clamp(1.2rem, 3vw, 1.5rem); /* Responsive font size */
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid;
+}
+
+.light-mode .card-header { 
+  border-color: var(--lm-border); 
+}
+
+.dark-mode .card-header { 
+  border-color: var(--dm-border); 
+}
+
+/* Upload Section */
+.upload-btn {
+  display: block;
+  width: 100%;
+  padding: 1rem;
+  text-align: center;
+  border: 2px solid;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: background 0.2s, transform 0.2s;
+  background: transparent;
+}
+
+.light-mode .upload-btn { 
+  border-color: var(--lm-border);
+  color: var(--lm-text);
+}
+
+.dark-mode .upload-btn { 
+  border-color: var(--dm-border);
+  color: var(--dm-text);
+}
+
+.light-mode .upload-btn:hover { 
+  background: var(--lm-input-bg); 
+}
+
+.dark-mode .upload-btn:hover { 
+  background: var(--dm-input-bg); 
+}
+
+.upload-btn:active {
+  transform: scale(0.98);
+}
+
+.file-status {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  text-align: center;
+  word-wrap: break-word;
+}
+
+/* Options Section */
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  align-items: center;
+  width: 100%;
+}
+
+.options-grid label {
+  font-size: 1rem;
+}
+
+.options-grid input[type="number"] {
+  width: 80px;
+  padding: 0.5rem;
+  border: 2px solid;
+  font-size: 1rem;
+  font-family: var(--font-main);
+}
+
+.light-mode .options-grid input[type="number"] {
+  background: var(--lm-input-bg);
+  border-color: var(--lm-border);
+  color: var(--lm-text);
+}
+
+.dark-mode .options-grid input[type="number"] {
+  background: var(--dm-input-bg);
+  border-color: var(--dm-border);
+  color: var(--dm-text);
+}
+
+.options-grid input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  justify-self: end;
+  cursor: pointer;
+}
+
+/* Export Section */
+.export-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.export-buttons button {
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border: 2px solid;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+  font-family: var(--font-main);
+  width: 100%;
+}
+
+.export-buttons button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.export-buttons button:not(:disabled):active {
+  transform: scale(0.98);
+}
+
+.light-mode .export-buttons button {
+  background: var(--lm-card-bg);
+  border-color: var(--lm-border);
+  color: var(--lm-text);
+}
+
+.dark-mode .export-buttons button {
+  background: var(--dm-card-bg);
+  border-color: var(--dm-border);
+  color: var(--dm-text);
+}
+
+.light-mode .export-buttons button:not(:disabled):hover {
+  background: var(--lm-text);
+  color: var(--lm-card-bg);
+}
+
+.dark-mode .export-buttons button:not(:disabled):hover {
+  background: var(--dm-text);
+  color: var(--dm-card-bg);
+}
+
+/* Footer */
+.footer {
+  margin-top: 3rem;
+  text-align: center;
+  font-size: 1rem;
+  padding-bottom: 2rem;
+  width: 100%;
+}
+
+/* Ensure no horizontal scroll on mobile */
+@media (max-width: 767px) {
+  .app-container {
+    padding: 0.5rem;
+  }
+  
+  .tool-card {
+    padding: 1rem;
+  }
+}
+
+/* Hide any overflow that might cause issues */
+.app-container > * {
+  max-width: 100%;
+}
+
+/* Input focus styles */
+input:focus {
+  outline: 2px solid;
+  outline-offset: 2px;
+}
+
+.light-mode input:focus {
+  outline-color: var(--lm-border);
+}
+
+.dark-mode input:focus {
+  outline-color: var(--dm-border);
+}
