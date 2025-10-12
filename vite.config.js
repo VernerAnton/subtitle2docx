@@ -1,9 +1,11 @@
 import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 // https://vitejs.dev/config/
 export default defineConfig({
-    // ...any other plugins or settings
+    base: '/subtitle2docx/',
+    plugins: [react()],
+    // Add this build section to change the output folder
     build: {
-        outDir: 'docs' // Change the output folder to 'docs'
-    },
-    base: '/subtitle2docx/', // Set the correct base path
+        outDir: 'docs'
+    }
 });
