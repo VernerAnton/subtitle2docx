@@ -33,14 +33,12 @@ export default function App() {
   const [stripBrackets, setStripBrackets] = useState(true);
   const [includeTimestamps, setIncludeTimestamps] = useState(true);
 
-  // --- IMPROVED THEME STATE AND LOGIC ---
-  // Check if user has a saved preference
+  // --- THEME STATE AND LOGIC ---
   const [themePreference, setThemePreference] = useState<ThemePreference>(() => {
     const saved = localStorage.getItem('themePreference');
     return (saved as ThemePreference) || 'system';
   });
 
-  // Track actual theme being displayed
   const [actualTheme, setActualTheme] = useState<'light' | 'dark'>(() => {
     if (themePreference === 'system') {
       return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -61,7 +59,6 @@ export default function App() {
 
     updateActualTheme();
 
-    // Listen for system theme changes (only matters when preference is 'system')
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleSystemThemeChange = () => {
       if (themePreference === 'system') {
@@ -90,17 +87,17 @@ export default function App() {
   // Get icon based on current state
   const getThemeIcon = () => {
     if (themePreference === 'system') {
-      return '🌓'; // Half moon to indicate auto/system mode
+      return '🌓';
     }
-    return actualTheme === 'dark' ? '☀️' : '🌙';
+    return themePreference === 'dark' ? '☀️' : '🌙';
   };
 
   // Get tooltip text
   const getThemeTooltip = () => {
     if (themePreference === 'system') {
-      return `Auto (currently ${actualTheme})`;
+      return `Auto (${actualTheme})`;
     }
-    return `${actualTheme === 'dark' ? 'Dark' : 'Light'} mode`;
+    return `Switch to ${themePreference === 'dark' ? 'system' : 'dark'}`;
   };
 
   // --- DATA HANDLING FUNCTIONS ---
@@ -203,20 +200,24 @@ export default function App() {
   return (
     <div className={`app-container ${actualTheme === 'dark' ? 'dark-mode' : 'light-mode'}`}>
       <header className="header">
-        <h1 className="title">[ TOOLBOX ]</h1>
-        <button 
-          id="theme-btn" 
-          className="theme-btn" 
-          onClick={cycleTheme}
-          title={getThemeTooltip()}
-        >
-          {getThemeIcon()}
-        </button>
+        <div className="mode-toggle">
+          <span>[ MODE ]</span>
+          <button 
+            className="theme-btn" 
+            onClick={cycleTheme}
+            title={getThemeTooltip()}
+            aria-label="Toggle theme"
+          >
+            {getThemeIcon()}
+          </button>
+        </div>
+        <h1 className="title">════ TOOLBOX ════</h1>
+        <div className="spacer"></div>
       </header>
       
       <div className="tool-header">
-          <h2>[ SUBTITLE -&gt; WORD ]___</h2>
-          <p>Local-only subtitle to .docx converter.</p>
+          <h2>[ SUBTITLE → DOCX ]</h2>
+          <p>Convert subtitle files to Word documents</p>
       </div>
 
       <main className="main-content">
@@ -239,20 +240,41 @@ export default function App() {
           <div className="options-grid">
             <div className="option-item">
               <label>Paragraph gap (sec):</label>
-              <input type="number" value={gapSec} step={0.5} min={0}
-                     onChange={(e)=> setGapSec(Number(e.target.value))} className="option-input"/>
+              <input 
+                type="number" 
+                value={gapSec} 
+                step={0.5} 
+                min={0}
+                onChange={(e)=> setGapSec(Number(e.target.value))} 
+                className="option-input"
+              />
             </div>
             <div className="option-item checkbox-item">
-              <input type="checkbox" id="keepSpeakers" checked={keepSpeakers} onChange={e => setKeepSpeakers(e.target.checked)} />
+              <input 
+                type="checkbox" 
+                id="keepSpeakers" 
+                checked={keepSpeakers} 
+                onChange={e => setKeepSpeakers(e.target.checked)} 
+              />
               <label htmlFor="keepSpeakers">Keep speaker names</label>
             </div>
             <div className="option-item checkbox-item">
-              <input type="checkbox" id="stripBrackets" checked={stripBrackets} onChange={e => setStripBrackets(e.target.checked)} />
-              <label htmlFor="stripBrackets">Remove bracketed text (e.g., [applause])</label>
+              <input 
+                type="checkbox" 
+                id="stripBrackets" 
+                checked={stripBrackets} 
+                onChange={e => setStripBrackets(e.target.checked)} 
+              />
+              <label htmlFor="stripBrackets">Remove [bracketed] text</label>
             </div>
             <div className="option-item checkbox-item">
-              <input type="checkbox" id="includeTimestamps" checked={includeTimestamps} onChange={e => setIncludeTimestamps(e.target.checked)} />
-              <label htmlFor="includeTimestamps">Include timestamps in Translator Package</label>
+              <input 
+                type="checkbox" 
+                id="includeTimestamps" 
+                checked={includeTimestamps} 
+                onChange={e => setIncludeTimestamps(e.target.checked)} 
+              />
+              <label htmlFor="includeTimestamps">Include timestamps</label>
             </div>
           </div>
         </section>
@@ -261,20 +283,20 @@ export default function App() {
           <h3>[ 3. EXPORT ]</h3>
           <div className="export-buttons">
             <button disabled={!files.length || busy} onClick={onWordCount}>
-              {busy ? "[ PROCESSING... ]" : "[ WORD COUNT (TEXT ONLY) ]"}
+              {busy ? "[ PROCESSING... ]" : "[ WORD COUNT ]"}
             </button>
             <button disabled={!files.length || busy} onClick={onTranslatorPackage}>
               {busy ? "[ PROCESSING... ]" : "[ TRANSLATOR PACKAGE ]"}
             </button>
             <button disabled={!files.length || busy} onClick={onArchive}>
-              {busy ? "[ COMBINE ORIGINALS ]" : "[ COMBINE ORIGINALS ]"}
+              {busy ? "[ PROCESSING... ]" : "[ COMBINE ORIGINALS ]"}
             </button>
           </div>
         </section>
       </main>
 
       <footer className="footer">
-        [ All processing is done locally in your browser. No data is ever uploaded. ]
+        [ All processing happens locally • No data uploaded ]
       </footer>
     </div>
   );
