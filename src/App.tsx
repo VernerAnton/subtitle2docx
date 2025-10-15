@@ -33,7 +33,7 @@ export default function App() {
   const [stripBrackets, setStripBrackets] = useState(true);
   const [includeTimestamps, setIncludeTimestamps] = useState(true);
 
-  // --- THEME STATE AND LOGIC ---
+  // --- IMPROVED THEME STATE AND LOGIC ---
   const [themePreference, setThemePreference] = useState<ThemePreference>(() => {
     const saved = localStorage.getItem('themePreference');
     return (saved as ThemePreference) || 'system';
@@ -46,7 +46,6 @@ export default function App() {
     return themePreference === 'dark' ? 'dark' : 'light';
   });
 
-  // Update actual theme when preference or system theme changes
   useEffect(() => {
     const updateActualTheme = () => {
       if (themePreference === 'system') {
@@ -70,12 +69,10 @@ export default function App() {
     return () => mediaQuery.removeEventListener('change', handleSystemThemeChange);
   }, [themePreference]);
 
-  // Save preference to localStorage when it changes
   useEffect(() => {
     localStorage.setItem('themePreference', themePreference);
   }, [themePreference]);
 
-  // Toggle function cycles through: system -> light -> dark -> system
   const cycleTheme = () => {
     setThemePreference(prev => {
       if (prev === 'system') return 'light';
@@ -84,20 +81,14 @@ export default function App() {
     });
   };
 
-  // Get icon based on current state
   const getThemeIcon = () => {
-    if (themePreference === 'system') {
-      return '🌓';
-    }
-    return themePreference === 'dark' ? '☀️' : '🌙';
+    if (themePreference === 'system') return '🌓';
+    return actualTheme === 'dark' ? '☀️' : '🌙';
   };
 
-  // Get tooltip text
   const getThemeTooltip = () => {
-    if (themePreference === 'system') {
-      return `Auto (${actualTheme})`;
-    }
-    return `Switch to ${themePreference === 'dark' ? 'system' : 'dark'}`;
+    if (themePreference === 'system') return `Auto (currently ${actualTheme})`;
+    return `${actualTheme === 'dark' ? 'Dark' : 'Light'} mode`;
   };
 
   // --- DATA HANDLING FUNCTIONS ---
@@ -200,29 +191,25 @@ export default function App() {
   return (
     <div className={`app-container ${actualTheme === 'dark' ? 'dark-mode' : 'light-mode'}`}>
       <header className="header">
-        <div className="mode-toggle">
-          <span>[ MODE ]</span>
-          <button 
-            className="theme-btn" 
-            onClick={cycleTheme}
-            title={getThemeTooltip()}
-            aria-label="Toggle theme"
-          >
-            {getThemeIcon()}
-          </button>
-        </div>
-        <h1 className="title">════ TOOLBOX ════</h1>
-        <div className="spacer"></div>
+        <h1 className="title">[ TOOLBOX ]</h1>
+        <button 
+          id="theme-btn" 
+          className="theme-btn" 
+          onClick={cycleTheme}
+          title={getThemeTooltip()}
+        >
+          {getThemeIcon()}
+        </button>
       </header>
       
       <div className="tool-header">
-          <h2>[ SUBTITLE → DOCX ]</h2>
-          <p>Convert subtitle files to Word documents</p>
+          <h2 className="tool-title-main">[ SUBTITLE -&gt; WORD ]___</h2>
+          <p className="tool-desc">Local-only subtitle to .docx converter.</p>
       </div>
 
       <main className="main-content">
         <section className="tool-card">
-          <h3>[ 1. UPLOAD ]</h3>
+          <h3 className="card-header">[ 1. UPLOAD ]</h3>
           <label className="upload-btn">
             {files.length ? `[ ${files.length} FILE(S) SELECTED ]` : "[ SELECT .SRT / .VTT FILES ]"}
             <input
@@ -233,71 +220,67 @@ export default function App() {
               onChange={(e)=> setFiles(e.target.files ? Array.from(e.target.files) : [])}
             />
           </label>
+           <p className="file-status">{files.length ? files.map(f => f.name).join(', ') : "No files selected."}</p>
         </section>
 
         <section className="tool-card">
-          <h3>[ 2. OPTIONS ]</h3>
-          <div className="options-grid">
+          <h3 className="card-header">[ 2. OPTIONS ]</h3>
+          {/* This is the structurally improved section */}
+          <div className="options-container">
             <div className="option-item">
-              <label>Paragraph gap (sec):</label>
+              <span>Paragraph gap (sec):</span>
               <input 
                 type="number" 
                 value={gapSec} 
                 step={0.5} 
                 min={0}
                 onChange={(e)=> setGapSec(Number(e.target.value))} 
-                className="option-input"
-              />
+                className="option-input"/>
             </div>
-            <div className="option-item checkbox-item">
+            <label className="option-item checkbox-item">
+              <span>Keep speaker names</span>
               <input 
                 type="checkbox" 
-                id="keepSpeakers" 
                 checked={keepSpeakers} 
-                onChange={e => setKeepSpeakers(e.target.checked)} 
-              />
-              <label htmlFor="keepSpeakers">Keep speaker names</label>
-            </div>
-            <div className="option-item checkbox-item">
+                onChange={e => setKeepSpeakers(e.target.checked)} />
+            </label>
+            <label className="option-item checkbox-item">
+              <span>Remove bracketed text</span>
               <input 
                 type="checkbox" 
-                id="stripBrackets" 
                 checked={stripBrackets} 
-                onChange={e => setStripBrackets(e.target.checked)} 
-              />
-              <label htmlFor="stripBrackets">Remove [bracketed] text</label>
-            </div>
-            <div className="option-item checkbox-item">
+                onChange={e => setStripBrackets(e.target.checked)} />
+            </label>
+            <label className="option-item checkbox-item">
+              <span>Include timestamps</span>
               <input 
                 type="checkbox" 
-                id="includeTimestamps" 
                 checked={includeTimestamps} 
-                onChange={e => setIncludeTimestamps(e.target.checked)} 
-              />
-              <label htmlFor="includeTimestamps">Include timestamps</label>
-            </div>
+                onChange={e => setIncludeTimestamps(e.target.checked)} />
+            </label>
           </div>
         </section>
 
         <section className="tool-card">
-          <h3>[ 3. EXPORT ]</h3>
+          <h3 className="card-header">[ 3. EXPORT ]</h3>
           <div className="export-buttons">
             <button disabled={!files.length || busy} onClick={onWordCount}>
-              {busy ? "[ PROCESSING... ]" : "[ WORD COUNT ]"}
+              {busy ? "[ PROCESSING... ]" : "[ WORD COUNT (TEXT ONLY) ]"}
             </button>
             <button disabled={!files.length || busy} onClick={onTranslatorPackage}>
               {busy ? "[ PROCESSING... ]" : "[ TRANSLATOR PACKAGE ]"}
             </button>
             <button disabled={!files.length || busy} onClick={onArchive}>
-              {busy ? "[ PROCESSING... ]" : "[ COMBINE ORIGINALS ]"}
+              {busy ? "[ COMBINE ORIGINALS ]" : "[ COMBINE ORIGINALS ]"}
             </button>
           </div>
         </section>
       </main>
 
       <footer className="footer">
-        [ All processing happens locally • No data uploaded ]
+        [ All processing is done locally in your browser. No data is ever uploaded. ]
       </footer>
     </div>
   );
 }
+
