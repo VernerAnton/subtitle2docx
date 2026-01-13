@@ -28,6 +28,7 @@ export default function App() {
   // State for the application
   const [files, setFiles] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [gapSec, setGapSec] = useState(GAP_SEC_DEFAULT);
   const [keepSpeakers, setKeepSpeakers] = useState(true);
   const [stripBrackets, setStripBrackets] = useState(true);
@@ -147,6 +148,7 @@ export default function App() {
   async function onWordCount() {
     try {
       setBusy(true);
+      setError(null);
       const parsed = await parseAll();
       const perFile = Object.entries(parsed).map(([name, cues]) => {
         const paragraphs = cleanForWordCount(cues, gapSec);
@@ -155,6 +157,9 @@ export default function App() {
       });
       const totalWords = perFile.reduce((a, b) => a + b.words, 0);
       await exportTextOnlyDocx({ perFile, totalWords });
+    } catch (err) {
+      setError(`Failed to export Word Count: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      console.error('Export error:', err);
     } finally {
       setBusy(false);
     }
@@ -163,6 +168,7 @@ export default function App() {
   async function onTranslatorPackage() {
     try {
       setBusy(true);
+      setError(null);
       const parsed = await parseAll();
       const rows = Object.values(parsed).flat().map(c => ({
           file: c.file,
@@ -172,6 +178,9 @@ export default function App() {
           translation: ""
       }));
       await exportTranslatorDocx({ rows, includeTimestamps });
+    } catch (err) {
+      setError(`Failed to export Translator Package: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      console.error('Export error:', err);
     } finally {
       setBusy(false);
     }
@@ -180,8 +189,12 @@ export default function App() {
   async function onArchive() {
     try {
       setBusy(true);
+      setError(null);
       const raw = await readAll();
       await exportArchiveDocx(raw);
+    } catch (err) {
+      setError(`Failed to export Archive: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      console.error('Export error:', err);
     } finally {
       setBusy(false);
     }
@@ -192,11 +205,12 @@ export default function App() {
     <div className={`app-container ${actualTheme === 'dark' ? 'dark-mode' : 'light-mode'}`}>
       <header className="header">
         <h1 className="title">[ TOOLBOX ]</h1>
-        <button 
-          id="theme-btn" 
-          className="theme-btn" 
+        <button
+          id="theme-btn"
+          className="theme-btn"
           onClick={cycleTheme}
           title={getThemeTooltip()}
+          aria-label={`Theme: ${getThemeTooltip()}. Click to cycle theme`}
         >
           {getThemeIcon()}
         </button>
@@ -218,6 +232,7 @@ export default function App() {
               multiple
               style={{display:"none"}}
               onChange={(e)=> setFiles(e.target.files ? Array.from(e.target.files) : [])}
+              aria-label="Upload subtitle files (.srt or .vtt format)"
             />
           </label>
            <p className="file-status">{files.length ? files.map(f => f.name).join(', ') : "No files selected."}</p>
@@ -264,18 +279,36 @@ export default function App() {
         <section className="tool-card">
           <h3 className="card-header">[ 3. EXPORT ]</h3>
           <div className="export-buttons">
-            <button disabled={!files.length || busy} onClick={onWordCount}>
+            <button
+              disabled={!files.length || busy}
+              onClick={onWordCount}
+              aria-label="Export word count (text only) document"
+            >
               {busy ? "[ PROCESSING... ]" : "[ WORD COUNT (TEXT ONLY) ]"}
             </button>
-            <button disabled={!files.length || busy} onClick={onTranslatorPackage}>
+            <button
+              disabled={!files.length || busy}
+              onClick={onTranslatorPackage}
+              aria-label="Export translator package with table format"
+            >
               {busy ? "[ PROCESSING... ]" : "[ TRANSLATOR PACKAGE ]"}
             </button>
-            <button disabled={!files.length || busy} onClick={onArchive}>
-              {busy ? "[ COMBINE ORIGINALS ]" : "[ COMBINE ORIGINALS ]"}
+            <button
+              disabled={!files.length || busy}
+              onClick={onArchive}
+              aria-label="Export archive combining original subtitle files"
+            >
+              {busy ? "[ PROCESSING... ]" : "[ COMBINE ORIGINALS ]"}
             </button>
           </div>
         </section>
       </main>
+
+      {error && (
+        <div className="error-message">
+          <strong>ERROR:</strong> {error}
+        </div>
+      )}
 
       <footer className="footer">
         [ All processing is done locally in your browser. No data is ever uploaded. ]

@@ -1,30 +1,4 @@
-/**
- * Extracts a speaker tag (e.g., "- [John]") from the text.
- * @returns An object with the speaker's name and the cleaned text.
- */
-function extractSpeaker(rawText: string): { speaker: string | null; text: string } {
-    const lines = rawText.split(/\r?\n/);
-    const firstLine = lines[0]?.trim() ?? "";
-    const match = firstLine.match(/^- \[([^\]]+)\]\s*/);
-
-    if (match) {
-        const speaker = match[1].trim();
-        const cleanedFirstLine = firstLine.replace(match[0], "");
-        const remainingLines = lines.slice(1);
-        const cleanedText = [cleanedFirstLine, ...remainingLines].join(" ").replace(/\s+/g, " ").trim();
-        return { speaker, text: cleanedText };
-    }
-
-    const text = rawText.replace(/\r?\n/g, " ").trim();
-    return { speaker: null, text };
-}
-
-function toSec(t: string) {
-  const m = t.match(/(\d{2}):(\d{2}):(\d{2})[.,](\d{3})/);
-  if (!m) return 0;
-  const [, hh, mm, ss, ms] = m;
-  return (+hh)*3600 + (+mm)*60 + (+ss) + (+ms)/1000;
-}
+import { extractSpeaker, toSec } from "./utils";
 
 export function parseVtt(text: string) {
   // Strip WEBVTT header if present

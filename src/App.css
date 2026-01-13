@@ -338,6 +338,28 @@ input[type="checkbox"] {
   color: var(--dm-card-bg);
 }
 
+/* Error Message */
+.error-message {
+  margin: 2rem auto;
+  padding: 1rem;
+  border: 2px solid;
+  text-align: center;
+  max-width: 800px;
+  width: 100%;
+}
+
+.light-mode .error-message {
+  background: #ffe6e6;
+  border-color: #cc0000;
+  color: #cc0000;
+}
+
+.dark-mode .error-message {
+  background: #4d1a1a;
+  border-color: #ff6666;
+  color: #ff6666;
+}
+
 /* Footer */
 .footer {
   margin-top: 3rem;
