@@ -236,11 +236,106 @@ body {
   min-height: 1.2em; /* Prevents layout shift */
 }
 
+/* Mode Selection */
+.mode-selection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mode-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  border: 2px solid;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  position: relative;
+}
+
+.light-mode .mode-card {
+  border-color: var(--lm-border);
+  background: transparent;
+}
+
+.dark-mode .mode-card {
+  border-color: var(--dm-border);
+  background: transparent;
+}
+
+.mode-card:hover:not(:has(input:disabled)) {
+  transform: translateX(4px);
+}
+
+.light-mode .mode-card:hover:not(:has(input:disabled)) {
+  background: var(--lm-input-bg);
+}
+
+.dark-mode .mode-card:hover:not(:has(input:disabled)) {
+  background: var(--dm-input-bg);
+}
+
+.mode-card.selected {
+  font-weight: bold;
+}
+
+.light-mode .mode-card.selected {
+  background: var(--lm-input-bg);
+  box-shadow: 2px 2px 0px var(--lm-border);
+}
+
+.dark-mode .mode-card.selected {
+  background: var(--dm-input-bg);
+  box-shadow: 2px 2px 0px var(--dm-border);
+}
+
+.mode-card input[type="radio"] {
+  margin-top: 0.2rem;
+  width: 1.2em;
+  height: 1.2em;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.mode-card input[type="radio"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mode-card:has(input:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mode-card-content {
+  flex: 1;
+}
+
+.mode-card-content strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 1.1rem;
+}
+
+.mode-card-content p {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
 /* --- IMPROVED Options Section --- */
 .options-container {
   display: flex;
   flex-direction: column;
   gap: 1.25rem; /* Spacing between each option row */
+}
+
+.no-options-message {
+  text-align: center;
+  padding: 1.5rem;
+  font-style: italic;
+  opacity: 0.8;
 }
 
 .option-item {
@@ -336,6 +431,57 @@ input[type="checkbox"] {
 .dark-mode .export-buttons button:not(:disabled):hover {
   background: var(--dm-text);
   color: var(--dm-card-bg);
+}
+
+/* Main Export Button */
+.export-button-main {
+  width: 100%;
+  padding: 1.5rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border: 3px solid;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+  font-family: var(--font-main);
+}
+
+.export-button-main:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.export-button-main:not(:disabled):active {
+  transform: scale(0.98);
+}
+
+.light-mode .export-button-main {
+  background: var(--lm-card-bg);
+  border-color: var(--lm-border);
+  color: var(--lm-text);
+}
+
+.dark-mode .export-button-main {
+  background: var(--dm-card-bg);
+  border-color: var(--dm-border);
+  color: var(--dm-text);
+}
+
+.light-mode .export-button-main:not(:disabled):hover {
+  background: var(--lm-text);
+  color: var(--lm-card-bg);
+}
+
+.dark-mode .export-button-main:not(:disabled):hover {
+  background: var(--dm-text);
+  color: var(--dm-card-bg);
+}
+
+.export-hint {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  font-style: italic;
+  opacity: 0.7;
 }
 
 /* Error Message */
