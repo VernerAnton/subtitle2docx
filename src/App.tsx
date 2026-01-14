@@ -15,6 +15,9 @@ type Cue = {
 // Theme preference type
 type ThemePreference = 'light' | 'dark' | 'system';
 
+// Export mode type
+type ExportMode = 'wordcount' | 'translator' | 'archive' | null;
+
 // Helper Functions
 function detectType(name: string) {
   return name.toLowerCase().endsWith(".srt") ? "srt"
@@ -29,6 +32,7 @@ export default function App() {
   const [files, setFiles] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedMode, setSelectedMode] = useState<ExportMode>(null);
   const [gapSec, setGapSec] = useState(GAP_SEC_DEFAULT);
   const [keepSpeakers, setKeepSpeakers] = useState(true);
   const [stripBrackets, setStripBrackets] = useState(true);
@@ -200,6 +204,23 @@ export default function App() {
     }
   }
 
+  // Unified export handler based on selected mode
+  async function onExport() {
+    if (!selectedMode) return;
+
+    switch (selectedMode) {
+      case 'wordcount':
+        await onWordCount();
+        break;
+      case 'translator':
+        await onTranslatorPackage();
+        break;
+      case 'archive':
+        await onArchive();
+        break;
+    }
+  }
+
   // --- RENDER ---
   return (
     <div className={`app-container ${actualTheme === 'dark' ? 'dark-mode' : 'light-mode'}`}>
@@ -239,68 +260,119 @@ export default function App() {
         </section>
 
         <section className="tool-card">
-          <h3 className="card-header">[ 2. OPTIONS ]</h3>
-          {/* This is the structurally improved section */}
-          <div className="options-container">
-            <div className="option-item">
-              <span>Paragraph gap (sec):</span>
-              <input 
-                type="number" 
-                value={gapSec} 
-                step={0.5} 
-                min={0}
-                onChange={(e)=> setGapSec(Number(e.target.value))} 
-                className="option-input"/>
-            </div>
-            <label className="option-item checkbox-item">
-              <span>Keep speaker names</span>
-              <input 
-                type="checkbox" 
-                checked={keepSpeakers} 
-                onChange={e => setKeepSpeakers(e.target.checked)} />
+          <h3 className="card-header">[ 2. SELECT MODE ]</h3>
+          <div className="mode-selection">
+            <label className={`mode-card ${selectedMode === 'wordcount' ? 'selected' : ''}`}>
+              <input
+                type="radio"
+                name="mode"
+                value="wordcount"
+                checked={selectedMode === 'wordcount'}
+                onChange={() => setSelectedMode('wordcount')}
+                disabled={!files.length}
+              />
+              <div className="mode-card-content">
+                <strong>WORD COUNT (TEXT ONLY)</strong>
+                <p>Extract and count words from subtitles</p>
+              </div>
             </label>
-            <label className="option-item checkbox-item">
-              <span>Remove bracketed text</span>
-              <input 
-                type="checkbox" 
-                checked={stripBrackets} 
-                onChange={e => setStripBrackets(e.target.checked)} />
+
+            <label className={`mode-card ${selectedMode === 'translator' ? 'selected' : ''}`}>
+              <input
+                type="radio"
+                name="mode"
+                value="translator"
+                checked={selectedMode === 'translator'}
+                onChange={() => setSelectedMode('translator')}
+                disabled={!files.length}
+              />
+              <div className="mode-card-content">
+                <strong>TRANSLATOR PACKAGE</strong>
+                <p>Table format for translation work</p>
+              </div>
             </label>
-            <label className="option-item checkbox-item">
-              <span>Include timestamps</span>
-              <input 
-                type="checkbox" 
-                checked={includeTimestamps} 
-                onChange={e => setIncludeTimestamps(e.target.checked)} />
+
+            <label className={`mode-card ${selectedMode === 'archive' ? 'selected' : ''}`}>
+              <input
+                type="radio"
+                name="mode"
+                value="archive"
+                checked={selectedMode === 'archive'}
+                onChange={() => setSelectedMode('archive')}
+                disabled={!files.length}
+              />
+              <div className="mode-card-content">
+                <strong>COMBINE ORIGINALS</strong>
+                <p>Archive all files as-is in one document</p>
+              </div>
             </label>
           </div>
         </section>
 
+        {selectedMode && (
+          <section className="tool-card">
+            <h3 className="card-header">[ 3. OPTIONS ]</h3>
+            {selectedMode === 'archive' ? (
+              <p className="no-options-message">No configuration needed - originals will be combined as-is</p>
+            ) : (
+              <div className="options-container">
+                {selectedMode === 'wordcount' && (
+                  <div className="option-item">
+                    <span>Paragraph gap (sec):</span>
+                    <input
+                      type="number"
+                      value={gapSec}
+                      step={0.5}
+                      min={0}
+                      onChange={(e)=> setGapSec(Number(e.target.value))}
+                      className="option-input"/>
+                  </div>
+                )}
+                {(selectedMode === 'wordcount' || selectedMode === 'translator') && (
+                  <label className="option-item checkbox-item">
+                    <span>Keep speaker names</span>
+                    <input
+                      type="checkbox"
+                      checked={keepSpeakers}
+                      onChange={e => setKeepSpeakers(e.target.checked)} />
+                  </label>
+                )}
+                {selectedMode === 'wordcount' && (
+                  <label className="option-item checkbox-item">
+                    <span>Remove bracketed text</span>
+                    <input
+                      type="checkbox"
+                      checked={stripBrackets}
+                      onChange={e => setStripBrackets(e.target.checked)} />
+                  </label>
+                )}
+                {selectedMode === 'translator' && (
+                  <label className="option-item checkbox-item">
+                    <span>Include timestamps</span>
+                    <input
+                      type="checkbox"
+                      checked={includeTimestamps}
+                      onChange={e => setIncludeTimestamps(e.target.checked)} />
+                  </label>
+                )}
+              </div>
+            )}
+          </section>
+        )}
+
         <section className="tool-card">
-          <h3 className="card-header">[ 3. EXPORT ]</h3>
-          <div className="export-buttons">
-            <button
-              disabled={!files.length || busy}
-              onClick={onWordCount}
-              aria-label="Export word count (text only) document"
-            >
-              {busy ? "[ PROCESSING... ]" : "[ WORD COUNT (TEXT ONLY) ]"}
-            </button>
-            <button
-              disabled={!files.length || busy}
-              onClick={onTranslatorPackage}
-              aria-label="Export translator package with table format"
-            >
-              {busy ? "[ PROCESSING... ]" : "[ TRANSLATOR PACKAGE ]"}
-            </button>
-            <button
-              disabled={!files.length || busy}
-              onClick={onArchive}
-              aria-label="Export archive combining original subtitle files"
-            >
-              {busy ? "[ PROCESSING... ]" : "[ COMBINE ORIGINALS ]"}
-            </button>
-          </div>
+          <h3 className="card-header">[ 4. EXPORT ]</h3>
+          <button
+            className="export-button-main"
+            disabled={!files.length || !selectedMode || busy}
+            onClick={onExport}
+            aria-label="Export document in selected format"
+          >
+            {busy ? "[ PROCESSING... ]" : "[ EXPORT ]"}
+          </button>
+          {!selectedMode && files.length > 0 && (
+            <p className="export-hint">Select a mode above to enable export</p>
+          )}
         </section>
       </main>
 
